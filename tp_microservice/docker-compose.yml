@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+
+  mongo:
+    image: mongo:6
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  livre-service:
+    build: ./livre-service
+    container_name: livre-service
+    ports:
+      - "3001:3001"
+    environment:
+      MONGO_URL: mongodb://mongo:27017
+    depends_on:
+      - mongo
+
+  membre-service:
+    build: ./membre-service
+    container_name: membre-service
+    ports:
+      - "3002:3002"
+    environment:
+      MONGO_URL: mongodb://mongo:27017
+    depends_on:
+      - mongo
+
+  emprunt-service:
+    build: ./emprunt-service
+    container_name: emprunt-service
+    ports:
+      - "3003:3003"
+    environment:
+      MONGO_URL: mongodb://mongo:27017
+      LIVRE_SERVICE: http://livre-service:3001
+      MEMBRE_SERVICE: http://membre-service:3002
+    depends_on:
+      - mongo
+      - livre-service
+      - membre-service
+
+volumes:
+  mongo_data:

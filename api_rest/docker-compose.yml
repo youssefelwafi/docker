@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  # Service 1 : API Node.js / Express
+  app:
+    build: .
+    container_name: api-express
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017/bdmonapi
+      - NODE_ENV=production
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # Service 2 : MongoDB
+  mongodb:
+    image: mongo:6
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+    restart: unless-stopped
+
+# Volume persistant
+volumes:
+  mongo-data:
+
+# Réseau interne Docker
+networks:
+  app-network:
+    driver: bridge
